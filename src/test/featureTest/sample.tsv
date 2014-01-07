@@ -8,4 +8,4 @@ Get	${headers}	Set HTTP Headers	a=1	b=2
 	Log	${resp.headers}					
 	[Teardown]	Reset HTTP Headers					
 							
-Post							
+Post	${resp}	Post	http://www.baidu.com	${EMPTY}			
