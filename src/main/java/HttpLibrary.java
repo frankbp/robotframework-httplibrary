@@ -7,7 +7,7 @@ public class HttpLibrary extends AnnotationLibrary {
 
 	public static final String KEYWORD_PATTERN = "com/netease/common/**/*.class";
 	public static final String ROBOT_LIBRARY_SCOPE = "GLOBAL";
-	public static final String ROBOT_LIBRARY_VERSION = "0.0.1";
+	public static final String ROBOT_LIBRARY_VERSION = "1.0.0";
 	public static final String ROBOT_LIBRARY_DOC_FORMAT = "ROBOT";
 	public static final String LIBRARY_DOCUMENTATION = "HttpLibrary is a library to implement HTTP methods, including GET and POST";
 	public static final String LIBRARY_INITIALIZATION_DOCUMENTATION = "HttpLibrary can be imported directly without any arguments.\n\r"
