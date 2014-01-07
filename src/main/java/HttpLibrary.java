@@ -14,8 +14,7 @@ public class HttpLibrary extends AnnotationLibrary {
 			+ "\n"
 			+ "Examples:\n"
 			+ "| Library | HttpLibrary |\n";
-	
-	
+
 	public HttpLibrary() {
 		super("com/acme/**/keyword/**/*.class");
         addKeywordPattern(KEYWORD_PATTERN);
