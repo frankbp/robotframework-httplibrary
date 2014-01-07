@@ -1,0 +1,11 @@
+*Settings*							
+Resource	../Resources/CommonResources.tsv						
+							
+*Test Cases*							
+Get	${headers}	Set HTTP Headers	a=1	b=2			
+	Log	${headers}					
+	${resp}	Get	http://www.baidu.com				
+	Log	${resp.headers}					
+	[Teardown]	Reset HTTP Headers					
+							
+Post							
