@@ -3,7 +3,8 @@ Resource	../Resources/CommonResources.tsv
 							
 *Test Cases*							
 Get	${headers}	Set HTTP Headers	a=1	b=2			
-	Log	${headers}					
+	Set HTTP Cookies	name=NetEase;path=/;domain=www.baidu.com					
+	Reset HTTP Cookies						
 	${resp}	Get	http://www.baidu.com				
 	Log	${resp.headers}					
 	[Teardown]	Reset HTTP Headers					

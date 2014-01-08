@@ -2,6 +2,9 @@ package com.netease.common;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.apache.http.client.CookieStore;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -18,6 +21,9 @@ import org.robotframework.javalib.annotation.RobotKeywordOverload;
 import org.robotframework.javalib.annotation.RobotKeywords;
 import org.robotframework.javalib.annotation.ArgumentNames;
 
+import java.util.Date;
+import java.util.List;
+
 @RobotKeywords
 public class HttpConnection {
 	
@@ -27,6 +33,34 @@ public class HttpConnection {
     private static Header[] initHeaders = {new BasicHeader("Content-Type", "application/x-www-form-urlencoded"),
                                              new BasicHeader("Accept-Charset", CHARACTER_ENCODING)};
     private static Header[] headers = initHeaders.clone();
+    private static DefaultHttpClient client = createDefaultHttpClient();
+    private static CookieStore cookieStore = HttpConnection.client.getCookieStore();
+
+    @RobotKeyword("This keyword sets HTTP cookies\n\n"
+            + "| Options  | Man. | Description |\n"
+            + "| cookies  | Yes  | Cookies with format 'key=value' |\n\n"
+            + "Examples:\n"
+            + "| Set HTTP Cookies | name=NetEase |\n"
+            + "| Set HTTP Cookies | name=NetEase | department=R&D |\n")
+    @ArgumentNames({"*cookies"})
+    public void setHttpCookies(String... cookies) {
+        for(String cookie:cookies) {
+            BasicClientCookie clientCookie = new BasicClientCookie("abc", "123");
+            clientCookie.setDomain("www.baidu.com");
+            clientCookie.setPath("/");
+            HttpConnection.cookieStore.addCookie(clientCookie);
+        }
+            HttpConnection.client.setCookieStore(HttpConnection.cookieStore);
+    }
+
+    @RobotKeyword("This keyword resets HTTP cookies to empty\n\n"
+            + "Examples:\n"
+            + "| Reset HTTP Cookies |\n")
+    @ArgumentNames({"*cookies"})
+    public void resetHttpCookies() {
+        HttpConnection.cookieStore.clear();
+        HttpConnection.client.setCookieStore(HttpConnection.cookieStore);
+    }
 
     @RobotKeyword("This keyword sets HTTP connection timeout, "
                 + "and it will return the original connection timeout value\n\n"
@@ -139,7 +173,7 @@ public class HttpConnection {
 			    + "| Should Be Equal As Strings | ${resp.jsonBody[\"code\"] | 1 |")
 	@ArgumentNames({"uri", "data"})
 	public static HttpResponseResult post(String uri, String data) throws Exception {
-        DefaultHttpClient httpClient = createDefaultHttpClient();
+        //DefaultHttpClient httpClient = createDefaultHttpClient();
 
 		StringEntity stringEntity = new StringEntity(data, CHARACTER_ENCODING);
 
@@ -151,7 +185,7 @@ public class HttpConnection {
         System.out.println("*INFO* Request Headers: " + StringUtils.join(headers, " | "));
 		
 		try {
-		    HttpResponse httpResponse = httpClient.execute(httpPost);
+		    HttpResponse httpResponse = HttpConnection.client.execute(httpPost);
 		    return new HttpResponseResult(httpResponse);
 		}
 		finally {
@@ -174,7 +208,7 @@ public class HttpConnection {
 			    + "| Should Be Equal As Strings | ${resp.jsonBody[\"code\"] | 1 |")
 	@ArgumentNames({"uri"})
 	public static HttpResponseResult get(String uri) throws Exception {
-        DefaultHttpClient httpClient = createDefaultHttpClient();
+        //DefaultHttpClient httpClient = createDefaultHttpClient();
 
 		HttpGet httpGet = new HttpGet(uri);
         httpGet.setHeaders(HttpConnection.headers);
@@ -183,7 +217,7 @@ public class HttpConnection {
         System.out.println("*INFO* Request Headers: " + StringUtils.join(headers, " | "));
 
 		try {
-			HttpResponse httpResponse = httpClient.execute(httpGet);
+			HttpResponse httpResponse = HttpConnection.client.execute(httpGet);
 			return new HttpResponseResult(httpResponse);
 		}
 		finally {
