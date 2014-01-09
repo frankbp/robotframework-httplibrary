@@ -3,7 +3,6 @@ package com.netease.common;
 import org.apache.commons.lang.StringUtils;
 
 import org.apache.http.client.CookieStore;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.BasicHttpParams;
@@ -21,8 +20,8 @@ import org.robotframework.javalib.annotation.RobotKeywordOverload;
 import org.robotframework.javalib.annotation.RobotKeywords;
 import org.robotframework.javalib.annotation.ArgumentNames;
 
-import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @RobotKeywords
 public class HttpConnection {
@@ -38,19 +37,66 @@ public class HttpConnection {
 
     @RobotKeyword("This keyword sets HTTP cookies\n\n"
             + "| Options  | Man. | Description |\n"
-            + "| cookies  | Yes  | Cookies with format 'key=value' |\n\n"
+            + "| cookies  | Yes  | Cookies with format 'name=xxx;value=xxx;domain=xxx;path=xxx' |\n"
+            + "Note: Following are the valid cookie attributes, 'name' and 'value' are the mandatory ones. "
+            + "It will not fail even the format is invalid but only gives the warning messages\n"
+            + "- name: cookie name\n"
+            + "- value: cookie value\n"
+            + "- domain: cookie affected domain\n"
+            + "- path: cookie affected path\n"
             + "Examples:\n"
-            + "| Set HTTP Cookies | name=NetEase |\n"
-            + "| Set HTTP Cookies | name=NetEase | department=R&D |\n")
+            + "| Set HTTP Cookies | key=company;value=NetEase |\n"
+            + "| Set HTTP Cookies | key=company;value=NetEase | key=department;value=R&D |\n")
     @ArgumentNames({"*cookies"})
     public void setHttpCookies(String... cookies) {
         for(String cookie:cookies) {
-            BasicClientCookie clientCookie = new BasicClientCookie("abc", "123");
-            clientCookie.setDomain("www.baidu.com");
-            clientCookie.setPath("/");
-            HttpConnection.cookieStore.addCookie(clientCookie);
+            try {
+                BasicClientCookie clientCookie = generateCookie(cookie);
+                HttpConnection.cookieStore.addCookie(clientCookie);}
+            catch (Exception e) {
+                System.out.println("*WARN* Cookie " + cookie + " is invalid");
+                System.out.println("*WARN* " + e);
+            }
         }
-            HttpConnection.client.setCookieStore(HttpConnection.cookieStore);
+        System.out.println("*DEBUG* Cookie is " + HttpConnection.cookieStore);
+
+        HttpConnection.client.setCookieStore(HttpConnection.cookieStore);
+
+        System.out.println("*DEBUG* Client cookie is " + HttpConnection.client.getCookieStore());
+
+    }
+
+    private BasicClientCookie generateCookie(String cookie) {
+        Map<String, String> cookieMap = generateCookieMap(cookie);
+
+        BasicClientCookie clientCookie = new BasicClientCookie(cookieMap.get("name"), cookieMap.get("value"));
+        if (cookieMap.containsKey("domain")) {
+            clientCookie.setDomain(cookieMap.get("domain"));
+        }
+        if (cookieMap.containsKey("path")) {
+            clientCookie.setPath(cookieMap.get("path"));
+        }
+        if (cookieMap.containsKey("version")) {
+            clientCookie.setVersion(Integer.parseInt(cookieMap.get("version")));
+        }
+        /* TODO
+        if (cookieMap.containsKey("expiry")) {
+            clientCookie.setExpiryDate(cookieMap.get("expiry"));
+        }
+        */
+
+        return clientCookie;
+    }
+
+    private Map<String, String> generateCookieMap(String cookie) {
+        Map<String, String> cookieMap = new HashMap<String, String>();
+        String[] cookieInfo = cookie.split(";");
+        for (int i = 0; i < cookieInfo.length; i++) {
+            String[] keyValue = cookieInfo[i].split("=");
+            cookieMap.put(keyValue[0], keyValue[1]);
+        }
+
+        return cookieMap;
     }
 
     @RobotKeyword("This keyword resets HTTP cookies to empty\n\n"
@@ -115,7 +161,7 @@ public class HttpConnection {
                 + "| headers  | Yes  | HTTP headers |\n\n"
                 + "Examples:\n"
                 + "| Set HTTP Headers | a=1 |\n"
-                + "| Set HTTP Headers | a=1 | b=2 |"
+                + "| Set HTTP Headers | a=1 | b=2 |\n"
                 + "| ${original_http_headers} | Set HTTP Headers | c=3 |\n"
                 + "| Set HTTP Headers | ${original_http_headers} |\n")
     @ArgumentNames({"*headers"})
@@ -136,15 +182,6 @@ public class HttpConnection {
 
         return originalHttpHeaders;
     }
-    /*
-    @RobotKeywordOverload
-    @ArgumentNames({"headers"})
-    public Header[] setHttpHeaders(Header[] headers) {
-        Header[] originalHttpHeaders = HttpConnection.headers;
-        HttpConnection.headers = headers;
-
-        return originalHttpHeaders;
-    } */
 
     @RobotKeyword("This keyword resets HTTP headers to default value\n"
                 + "The default HTTP header is \"Content-Type\" = \"application/x-www-form-urlencoded\" and "
@@ -173,8 +210,6 @@ public class HttpConnection {
 			    + "| Should Be Equal As Strings | ${resp.jsonBody[\"code\"] | 1 |")
 	@ArgumentNames({"uri", "data"})
 	public static HttpResponseResult post(String uri, String data) throws Exception {
-        //DefaultHttpClient httpClient = createDefaultHttpClient();
-
 		StringEntity stringEntity = new StringEntity(data, CHARACTER_ENCODING);
 
 		HttpPost httpPost = new HttpPost(uri);
@@ -182,8 +217,8 @@ public class HttpConnection {
 		httpPost.setEntity(stringEntity);
 		
 		System.out.println("*INFO* Request: POST " + uri + " " + data);
-        System.out.println("*INFO* Request Headers: " + StringUtils.join(headers, " | "));
-		
+        PrintHttpClientInformation();
+
 		try {
 		    HttpResponse httpResponse = HttpConnection.client.execute(httpPost);
 		    return new HttpResponseResult(httpResponse);
@@ -208,13 +243,11 @@ public class HttpConnection {
 			    + "| Should Be Equal As Strings | ${resp.jsonBody[\"code\"] | 1 |")
 	@ArgumentNames({"uri"})
 	public static HttpResponseResult get(String uri) throws Exception {
-        //DefaultHttpClient httpClient = createDefaultHttpClient();
-
 		HttpGet httpGet = new HttpGet(uri);
         httpGet.setHeaders(HttpConnection.headers);
 		
 	    System.out.println("*INFO* Request: GET " + uri);
-        System.out.println("*INFO* Request Headers: " + StringUtils.join(headers, " | "));
+        PrintHttpClientInformation();
 
 		try {
 			HttpResponse httpResponse = HttpConnection.client.execute(httpGet);
@@ -231,5 +264,11 @@ public class HttpConnection {
         HttpConnectionParams.setSoTimeout(httpParams, HttpConnection.readTimeout);
 
         return new DefaultHttpClient(httpParams);
+    }
+
+    private static void PrintHttpClientInformation() {
+        System.out.println("*INFO* Request Headers: " + StringUtils.join(HttpConnection.headers, " | "));
+        System.out.println("*INFO* Request Cookies: " + HttpConnection.client.getCookieStore());
+
     }
 }
