@@ -27,8 +27,8 @@ import java.util.Map;
 public class HttpConnection {
 	
 	private static final String CHARACTER_ENCODING = "UTF-8";
-    private static int connectionTimeout = 10000;
-    private static int readTimeout = 10000;
+    private static int connectionTimeout = 10 * 1000;
+    private static int readTimeout = 10 * 1000;
     private static Header[] initHeaders = {new BasicHeader("Content-Type", "application/x-www-form-urlencoded"),
                                              new BasicHeader("Accept-Charset", CHARACTER_ENCODING)};
     private static Header[] headers = initHeaders.clone();
@@ -118,13 +118,16 @@ public class HttpConnection {
                 + "| Set HTTP Connection Timeout | ${original_connection_timeout} |\n")
     @ArgumentNames({"timeout"})
     public int setHttpConnectionTimeout(String timeout) throws Exception {
-        int originalConnectionTimeout = HttpConnection.connectionTimeout;
+        HttpParams httpParams = HttpConnection.client.getParams();
+        int originalConnectionTimeout = HttpConnectionParams.getConnectionTimeout(httpParams);
+
         try {
-            HttpConnection.connectionTimeout = Integer.parseInt(timeout);
+            HttpConnectionParams.setConnectionTimeout(httpParams, Integer.parseInt(timeout));
+            return originalConnectionTimeout;
         } catch (Exception e) {
-              throw new Exception("Convert timeout " + timeout + "to integer failed");
+            System.out.println("*DEBUG* Exception: " + e);
+            throw new Exception("Convert timeout " + timeout + "to integer failed");
         }
-        return originalConnectionTimeout;
     }
 
     @RobotKeyword("This keyword sets HTTP read timeout, "
@@ -137,20 +140,23 @@ public class HttpConnection {
                 + "| Set HTTP Read Timeout | ${original_read_timeout} |\n")
     @ArgumentNames({"timeout"})
     public int setHttpReadTimeout(String timeout) throws Exception {
-        int originalReadTimeout = HttpConnection.readTimeout;
+        HttpParams httpParams = HttpConnection.client.getParams();
+        int originalReadTimeout = HttpConnectionParams.getSoTimeout(httpParams);
+
         try {
-            HttpConnection.readTimeout = Integer.parseInt(timeout);
+            HttpConnectionParams.setSoTimeout(httpParams, Integer.parseInt(timeout));
+            return originalReadTimeout;
         } catch (Exception e) {
+            System.out.println("*DEBUG* Exception: " + e);
             throw new Exception("Convert timeout " + timeout + "to integer failed");
         }
-        return originalReadTimeout;
     }
 
     @RobotKeywordOverload
     @ArgumentNames({})
     public int setHttpReadTimeout() throws Exception {
         int originalReadTimeout = HttpConnection.readTimeout;
-        setHttpReadTimeout("10000");
+        setHttpReadTimeout(String.valueOf(HttpConnection.connectionTimeout));
 
         return originalReadTimeout;
     }

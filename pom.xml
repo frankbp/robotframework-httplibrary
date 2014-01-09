@@ -107,7 +107,8 @@
                         </goals>  
                         <configuration>  
                             <tasks>  
-                                <move file="${project.build.directory}/${project.artifactId}-${project.version}.jar" todir="${project.basedir}/src/test/scripts" />
+                                <move file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+                                       tofile="${project.basedir}/src/test/scripts/${project.artifactId}.jar" />
                                 <copy todir="${project.basedir}/src/test/variables"> 
                                     <fileset file="${project.build.directory}/classes/variables*.class"/>     
                                 </copy>                           
