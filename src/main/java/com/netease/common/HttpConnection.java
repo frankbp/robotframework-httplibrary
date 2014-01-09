@@ -138,7 +138,7 @@ public class HttpConnection {
                 + "| Set HTTP Read Timeout | 15000 |\n"
                 + "| ${original_read_timeout} | Set HTTP Read Timeout | 15000 |\n"
                 + "| Set HTTP Read Timeout | ${original_read_timeout} |\n")
-    @ArgumentNames({"timeout"})
+    @ArgumentNames({"timeout="})
     public int setHttpReadTimeout(String timeout) throws Exception {
         HttpParams httpParams = HttpConnection.client.getParams();
         int originalReadTimeout = HttpConnectionParams.getSoTimeout(httpParams);

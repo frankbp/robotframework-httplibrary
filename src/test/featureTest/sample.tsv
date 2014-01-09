@@ -2,7 +2,8 @@
 Resource	../Resources/CommonResources.tsv						
 							
 *Test Cases*							
-Get	Comment	${headers}	Set HTTP Headers	a=1	b=2		
+Get	${timeout}	Set Http Read Timeout					
+	Comment	${headers}	Set HTTP Headers	a=1	b=2		
 	Set HTTP Cookies	name=name;value=NetEase;path=/;domain=www.baidu.com					
 	Comment	Reset HTTP Cookies					
 	${resp}	Get	http://www.baidu.com				
