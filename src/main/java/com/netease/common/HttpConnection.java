@@ -3,6 +3,7 @@ package com.netease.common;
 import org.apache.commons.lang.StringUtils;
 
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.BasicHttpParams;
@@ -20,6 +21,8 @@ import org.robotframework.javalib.annotation.RobotKeywordOverload;
 import org.robotframework.javalib.annotation.RobotKeywords;
 import org.robotframework.javalib.annotation.ArgumentNames;
 
+import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -218,7 +221,7 @@ public class HttpConnection {
 	public static HttpResponseResult post(String uri, String data) throws Exception {
 		StringEntity stringEntity = new StringEntity(data, CHARACTER_ENCODING);
 
-		HttpPost httpPost = new HttpPost(uri);
+		HttpPost httpPost = new HttpPost(EncodeUrl(uri));
         httpPost.setHeaders(HttpConnection.headers);
 		httpPost.setEntity(stringEntity);
 		
@@ -249,7 +252,7 @@ public class HttpConnection {
 			    + "| Should Be Equal As Strings | ${resp.jsonBody[\"code\"] | 1 |")
 	@ArgumentNames({"uri"})
 	public static HttpResponseResult get(String uri) throws Exception {
-		HttpGet httpGet = new HttpGet(uri);
+		HttpGet httpGet = new HttpGet(EncodeUrl(uri));
         httpGet.setHeaders(HttpConnection.headers);
 		
 	    System.out.println("*INFO* Request: GET " + uri);
@@ -264,12 +267,54 @@ public class HttpConnection {
 		}
 	}
 
+    @RobotKeyword("This keyword sends HTTP message via DELETE method\n\n"
+            + "It returns HttpResponseResult object and following attributes can be directly accessed\n"
+            + "- statusCode: HTTP response code\n"
+            + "- headers: HTTP response headers, it is an array\n"
+            + "- rawBody: HTTP response body\n"
+            + "- jsonBody: HTTP response body, but with JSON format\n"
+            + "| Options  | Man. | Description |\n"
+            + "| url      | Yes  | URL |\n\n"
+            + "Examples:\n"
+            + "| DELETE | http://1.2.3.4:5678 |\n"
+            + "| ${resp} | DELETE | http://1.2.3.4:5678?name=yixin&id=1 |\n"
+            + "| Should Be Equal As Strings | ${resp.statusCode} | 200 |\n"
+            + "| Should Be Equal As Strings | ${resp.jsonBody[\"code\"] | 1 |")
+    @ArgumentNames({"uri"})
+    public static HttpResponseResult delete(String uri) throws Exception {
+        HttpDelete httpDelete = new HttpDelete(EncodeUrl(uri));
+        httpDelete.setHeaders(HttpConnection.headers);
+
+        System.out.println("*INFO* Request: DELETE " + uri);
+        PrintHttpClientInformation();
+
+        try {
+            HttpResponse httpResponse = HttpConnection.client.execute(httpDelete);
+            return new HttpResponseResult(httpResponse);
+        }
+        finally {
+            httpDelete.releaseConnection();
+        }
+    }
+
     private static DefaultHttpClient createDefaultHttpClient() {
         HttpParams httpParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(httpParams, HttpConnection.connectionTimeout);
         HttpConnectionParams.setSoTimeout(httpParams, HttpConnection.readTimeout);
 
         return new DefaultHttpClient(httpParams);
+    }
+
+    private static String EncodeUrl(String url) throws Exception {
+        URL encodedUrl = new URL(url);
+        URI encodedUri = new URI(encodedUrl.getProtocol(),
+                encodedUrl.getAuthority(),
+                encodedUrl.getPath(),
+                encodedUrl.getQuery(),
+                encodedUrl.getRef());
+        System.out.println("*DEBUG* Encoded url: " + encodedUri.toString());
+
+        return encodedUri.toString();
     }
 
     private static void PrintHttpClientInformation() {

@@ -2,12 +2,13 @@
 Resource	../Resources/CommonResources.tsv						
 							
 *Test Cases*							
-Get	${timeout}	Set Http Read Timeout					
-	Comment	${headers}	Set HTTP Headers	a=1	b=2		
-	Set HTTP Cookies	name=name;value=NetEase;path=/;domain=www.baidu.com					
-	Comment	Reset HTTP Cookies					
-	${resp}	Get	http://www.baidu.com				
-	Log	${resp.headers}					
+Get	${resp}	Get	http://www.baidu.com				
+	${length}	Get Length	${resp.headers}				
+	Should Be Equal As Strings	${length}	3				
+	Should Be Equal As Strings	3	3				
 	[Teardown]	Reset HTTP Headers					
 							
 Post	${resp}	Post	http://www.baidu.com	${EMPTY}			
+							
+test	Connect To Server						
+	Send Shell Command						
