@@ -94,9 +94,9 @@ public class HttpConnection {
 
     private Map<String, String> generateCookieMap(String cookie) {
         Map<String, String> cookieMap = new HashMap<String, String>();
-        String[] cookieInfo = cookie.split(";");
-        for (int i = 0; i < cookieInfo.length; i++) {
-            String[] keyValue = cookieInfo[i].split("=");
+        String[] cookieInfoArray = cookie.split(";");
+        for (String cookieInfo:cookieInfoArray) {
+            String[] keyValue = cookieInfo.split("=");
             cookieMap.put(keyValue[0], keyValue[1]);
         }
 
