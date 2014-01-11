@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.BasicHttpParams;
@@ -294,6 +295,41 @@ public class HttpConnection {
         }
         finally {
             httpDelete.releaseConnection();
+        }
+    }
+
+    @RobotKeyword("This keyword sends HTTP message via PUT method\n\n"
+            + "It returns HttpResponseResult object and following attributes can be directly accessed\n"
+            + "- statusCode: HTTP response code\n"
+            + "- headers: HTTP response headers, it is an array\n"
+            + "- rawBody: HTTP response body\n"
+            + "- jsonBody: HTTP response body, but with JSON format\n"
+            + "| Options  | Man. | Description |\n"
+            + "| url      | Yes  | URL |\n"
+            + "| data     | Yes  | Message body |\n\n"
+            + "Examples:\n"
+            + "| PUT | http://1.2.3.4:5678 | ${EMPTY} |\n"
+            + "| PUT | http://1.2.3.4:5678 | name=yixin&id=123 |\n"
+            + "| ${resp} | PUT | http://1.2.3.4:5678 | {\"message\":\"test\"} |\n"
+            + "| Should Be Equal As Strings | ${resp.statusCode} | 200 |\n"
+            + "| Should Be Equal As Strings | ${resp.jsonBody[\"code\"] | 1 |")
+    @ArgumentNames({"uri", "data"})
+    public static HttpResponseResult put(String uri, String data) throws Exception {
+        StringEntity stringEntity = new StringEntity(data, CHARACTER_ENCODING);
+
+        HttpPut httpPut = new HttpPut(EncodeUrl(uri));
+        httpPut.setHeaders(HttpConnection.headers);
+        httpPut.setEntity(stringEntity);
+
+        System.out.println("*INFO* Request: PUT " + uri + " " + data);
+        PrintHttpClientInformation();
+
+        try {
+            HttpResponse httpResponse = HttpConnection.client.execute(httpPut);
+            return new HttpResponseResult(httpResponse);
+        }
+        finally {
+            httpPut.releaseConnection();
         }
     }
 
