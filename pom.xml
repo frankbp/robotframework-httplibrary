@@ -7,6 +7,9 @@
     <groupId>com.netease.common</groupId>
     <artifactId>HttpLibrary</artifactId>
     <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <name>RobotFramework HTTP library</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
