@@ -11,6 +11,21 @@
 
     <name>RobotFramework HTTP library</name>
 
+	<repositories>
+	    <repository>
+		    <id>artifactory</id>
+            <url>http://mvn.hz.netease.com/artifactory/repo</url>
+		</repository>
+		<repository>
+		    <id>libs-releases</id>
+            <url>http://mvn.hz.netease.com/artifactory/libs-releases</url>
+		</repository>
+		<repository>
+		    <id>Central</id>
+            <url>http://repo1.maven.org/maven2</url>
+		</repository>
+	</repositories>
+	
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <robotframework.version>2.8.1</robotframework.version>
