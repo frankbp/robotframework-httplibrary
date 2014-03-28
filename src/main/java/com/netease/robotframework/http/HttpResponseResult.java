@@ -1,4 +1,4 @@
-package com.netease.common;
+package com.netease.robotframework.http;
 
 import net.sf.json.JSONObject;
 

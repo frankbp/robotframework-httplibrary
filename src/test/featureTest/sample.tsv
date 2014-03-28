@@ -1,14 +1,21 @@
 *Settings*							
-Resource	../Resources/CommonResources.tsv						
+Resource	../Resources/CommonResources.tsv	
+Library	Selenium2Library	
+Library	SshLibrary					
 							
 *Test Cases*							
-Get	${resp}	Get	http://www.baidu.com				
-	${length}	Get Length	${resp.headers}				
-	Should Be Equal As Strings	${length}	3				
-	Should Be Equal As Strings	3	3				
-	[Teardown]	Reset HTTP Headers					
-							
-Post	${resp}	Post	http://www.baidu.com	${EMPTY}			
-							
-test	Connect To Server						
-	Send Shell Command						
+Get	${resp}	Get	http://ndirtest0.server.163.org:7008/sd/service/query?index=SongValid&stype=1&q=*:*				
+	Should Be Equal As Strings	${resp.jsonBody["code"]}	200
+	[Tags]	http
+
+Post	${resp}	Post	http://ndirtest0.server.163.org:7008/sd/service/query?index=SongValid&stype=1	{\"type\":\"PREFIX\",\"prefix\":{\"field\":\"ArtistName\",\"prefix\":\"陈奕迅\"}}
+	Should Be Equal As Strings	${resp.jsonBody["code"]}	200
+	[Tags]	http
+	
+WebTest	Open Browser	http://www.163.com
+	Close Browser
+	[Tags]	web
+	
+SshTest	Login With Key	ndirtest0.server.163.org	1046	ndir	C:\\id_rsa_public	${EMPTY}
+	Execute Shell Command	/sbin/ifconfig
+	[Tags]	ssh

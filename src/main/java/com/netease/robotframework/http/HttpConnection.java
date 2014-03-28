@@ -1,7 +1,8 @@
-package com.netease.common;
+package com.netease.robotframework.http;
 
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.StringUtils;
-
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPut;
@@ -16,7 +17,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-
 import org.robotframework.javalib.annotation.RobotKeyword;
 import org.robotframework.javalib.annotation.RobotKeywordOverload;
 import org.robotframework.javalib.annotation.RobotKeywords;
@@ -27,13 +27,15 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @RobotKeywords
 public class HttpConnection {
 	
 	private static final String CHARACTER_ENCODING = "UTF-8";
+	private static final String CONTENT_TYPE = "application/json";
     private static int connectionTimeout = 10 * 1000;
     private static int readTimeout = 10 * 1000;
-    private static Header[] initHeaders = {new BasicHeader("Content-Type", "application/x-www-form-urlencoded"),
+    private static Header[] initHeaders = {new BasicHeader("Content-Type", CONTENT_TYPE),
                                              new BasicHeader("Accept-Charset", CHARACTER_ENCODING)};
     private static Header[] headers = initHeaders.clone();
     private static DefaultHttpClient client = createDefaultHttpClient();
@@ -199,7 +201,7 @@ public class HttpConnection {
                 + "Examples:\n"
                 + "| Reset HTTP Headers |\n")
     @ArgumentNames({})
-    public static void resetHttpHeaders() {
+    public void resetHttpHeaders() {
         HttpConnection.headers = HttpConnection.initHeaders.clone();
     }
 	
@@ -219,7 +221,9 @@ public class HttpConnection {
 			    + "| Should Be Equal As Strings | ${resp.statusCode} | 200 |\n"
 			    + "| Should Be Equal As Strings | ${resp.jsonBody[\"code\"] | 1 |")
 	@ArgumentNames({"uri", "data"})
-	public static HttpResponseResult post(String uri, String data) throws Exception {
+	public HttpResponseResult post(String uri, String data) throws Exception {
+		//String encodedData = urlEncodedWithPlusSign(data);
+		//System.out.println("*INFO* Encoded data: " + encodedData);
 		StringEntity stringEntity = new StringEntity(data, CHARACTER_ENCODING);
 
 		HttpPost httpPost = new HttpPost(EncodeUrl(uri));
@@ -252,7 +256,7 @@ public class HttpConnection {
 			    + "| Should Be Equal As Strings | ${resp.statusCode} | 200 |\n"
 			    + "| Should Be Equal As Strings | ${resp.jsonBody[\"code\"] | 1 |")
 	@ArgumentNames({"uri"})
-	public static HttpResponseResult get(String uri) throws Exception {
+	public HttpResponseResult get(String uri) throws Exception {
 		HttpGet httpGet = new HttpGet(EncodeUrl(uri));
         httpGet.setHeaders(HttpConnection.headers);
 		
@@ -282,7 +286,7 @@ public class HttpConnection {
             + "| Should Be Equal As Strings | ${resp.statusCode} | 200 |\n"
             + "| Should Be Equal As Strings | ${resp.jsonBody[\"code\"] | 1 |")
     @ArgumentNames({"uri"})
-    public static HttpResponseResult delete(String uri) throws Exception {
+    public HttpResponseResult delete(String uri) throws Exception {
         HttpDelete httpDelete = new HttpDelete(EncodeUrl(uri));
         httpDelete.setHeaders(HttpConnection.headers);
 
@@ -314,7 +318,7 @@ public class HttpConnection {
             + "| Should Be Equal As Strings | ${resp.statusCode} | 200 |\n"
             + "| Should Be Equal As Strings | ${resp.jsonBody[\"code\"] | 1 |")
     @ArgumentNames({"uri", "data"})
-    public static HttpResponseResult put(String uri, String data) throws Exception {
+    public HttpResponseResult put(String uri, String data) throws Exception {
         StringEntity stringEntity = new StringEntity(data, CHARACTER_ENCODING);
 
         HttpPut httpPut = new HttpPut(EncodeUrl(uri));
@@ -341,7 +345,7 @@ public class HttpConnection {
         return new DefaultHttpClient(httpParams);
     }
 
-    private static String EncodeUrl(String url) throws Exception {
+    private String EncodeUrl(String url) throws Exception {
         URL encodedUrl = new URL(url);
         URI encodedUri = new URI(encodedUrl.getProtocol(),
                 encodedUrl.getAuthority(),
@@ -353,9 +357,19 @@ public class HttpConnection {
         return encodedUri.toString();
     }
 
-    private static void PrintHttpClientInformation() {
+    private void PrintHttpClientInformation() {
         System.out.println("*INFO* Request Headers: " + StringUtils.join(HttpConnection.headers, " | "));
         System.out.println("*INFO* Request Cookies: " + HttpConnection.client.getCookieStore());
 
+    }
+    
+    /**
+     * URL encoded with special character '+'
+     * @param url
+     * @return
+     * @throws URIException
+     */
+    private String urlEncodedWithPlusSign(String url) throws URIException {
+       return URIUtil.encodeQuery(url, CHARACTER_ENCODING).replaceAll("\\+", "%2B");
     }
 }

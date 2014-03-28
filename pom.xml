@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.netease.common</groupId>
+    <groupId>com.netease.robotframework.http</groupId>
     <artifactId>HttpLibrary</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
@@ -28,11 +28,11 @@
 	
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <robotframework.version>2.8.1</robotframework.version>
+        <robotframework.version>2.8.3</robotframework.version>
         <keywords.class>HttpLibrary</keywords.class>
-        <robotframework.run.includes></robotframework.run.includes>
+        <robotframework.run.includes>http</robotframework.run.includes>
         <robotframework.run.excludes></robotframework.run.excludes>
-        <robotframework.run.variableFile>variables.java</robotframework.run.variableFile>
+        <robotframework.run.variableFile></robotframework.run.variableFile>
         <robotframeowrk.run.randomize>suite</robotframeowrk.run.randomize>
     </properties>
 
@@ -48,6 +48,11 @@
             <version>3.1</version>
 		</dependency>
 		<dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
+		<dependency>
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
 			<version>2.3</version>
@@ -62,6 +67,16 @@
             <artifactId>javalib-core</artifactId>
             <version>1.2</version>
 		</dependency>
+		<dependency>
+	        <groupId>com.github.markusbernhardt</groupId>
+	        <artifactId>robotframework-selenium2library-java</artifactId>
+	        <version>1.4.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.netease.robotframework.ssh</groupId>
+            <artifactId>SshLibrary</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
     
     <build>
@@ -108,7 +123,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.netease.common.HttpLibrary</mainClass>
+                                    <mainClass>com.netease.robotframework.common.HttpLibrary</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -138,7 +153,7 @@
             <plugin>
                 <groupId>org.robotframework</groupId>
                 <artifactId>robotframework-maven-plugin</artifactId>
-                <version>1.2</version>
+                <version>1.4</version>
                 <executions>
                     <execution>
                         <id>html-libdoc-library</id>
@@ -216,7 +231,7 @@
                             <randomize>${robotframeowrk.run.randomize}</randomize>
                             <logLevel>DEBUG</logLevel>
                             <variableFiles>
-                                <variableFile>${project.basedir}/src/test/variables/${robotframework.run.variableFile}</variableFile>
+                                <!-- variableFile>${project.basedir}/src/test/variables/${robotframework.run.variableFile}</variableFile-->
                             </variableFiles>
                         </configuration>
                     </execution>

@@ -1,11 +1,11 @@
-import com.netease.common.HttpConnection;
+import com.netease.robotframework.http.HttpConnection;
 
 import org.robotframework.javalib.annotation.Autowired;
 import org.robotframework.javalib.library.AnnotationLibrary;
 
 public class HttpLibrary extends AnnotationLibrary {
 
-	public static final String KEYWORD_PATTERN = "com/netease/common/**/*.class";
+	public static final String KEYWORD_PATTERN = "com/netease/robotframework/http/**/*.class";
 	public static final String ROBOT_LIBRARY_SCOPE = "GLOBAL";
 	public static final String ROBOT_LIBRARY_VERSION = "1.0.0";
 	public static final String ROBOT_LIBRARY_DOC_FORMAT = "ROBOT";
