@@ -1,9 +1,0 @@
-*Settings*							
-Library	HttpLibrary						
-Library	Collections						
-Library	String						
-							
-*Variables*							
-${HOSTNAME}	open.yixin.im						
-							
-*Keywords*							

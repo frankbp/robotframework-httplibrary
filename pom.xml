@@ -9,28 +9,13 @@
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>RobotFramework HTTP library</name>
-
-	<repositories>
-	    <repository>
-		    <id>artifactory</id>
-            <url>http://mvn.hz.netease.com/artifactory/repo</url>
-		</repository>
-		<repository>
-		    <id>libs-releases</id>
-            <url>http://mvn.hz.netease.com/artifactory/libs-releases</url>
-		</repository>
-		<repository>
-		    <id>Central</id>
-            <url>http://repo1.maven.org/maven2</url>
-		</repository>
-	</repositories>
+    <name>robotframework-httplibrary</name>
 	
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <robotframework.version>2.8.3</robotframework.version>
         <keywords.class>HttpLibrary</keywords.class>
-        <robotframework.run.includes>http</robotframework.run.includes>
+        <robotframework.run.includes></robotframework.run.includes>
         <robotframework.run.excludes></robotframework.run.excludes>
         <robotframework.run.variableFile></robotframework.run.variableFile>
         <robotframeowrk.run.randomize>suite</robotframeowrk.run.randomize>
@@ -67,16 +52,6 @@
             <artifactId>javalib-core</artifactId>
             <version>1.2</version>
 		</dependency>
-		<dependency>
-	        <groupId>com.github.markusbernhardt</groupId>
-	        <artifactId>robotframework-selenium2library-java</artifactId>
-	        <version>1.4.0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.netease.robotframework.ssh</groupId>
-            <artifactId>SshLibrary</artifactId>
-            <version>1.0</version>
-        </dependency>
     </dependencies>
     
     <build>
@@ -130,30 +105,20 @@
                     </execution>
                 </executions>
             </plugin>
-             <plugin>  
-                <artifactId>maven-antrun-plugin</artifactId>  
-                <executions>  
-                    <execution>  
-                        <phase>package</phase>  
-                        <goals>  
-                            <goal>run</goal>  
-                        </goals>  
-                        <configuration>  
-                            <tasks>  
-                                <move file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                       tofile="${project.basedir}/src/test/scripts/${project.artifactId}.jar" />
-                                <copy todir="${project.basedir}/src/test/variables"> 
-                                    <fileset file="${project.build.directory}/classes/variables*.class"/>     
-                                </copy>                           
-                            </tasks>  
-                        </configuration>  
-                    </execution>  
-                </executions>  
-            </plugin>
+             
             <plugin>
                 <groupId>org.robotframework</groupId>
                 <artifactId>robotframework-maven-plugin</artifactId>
                 <version>1.4</version>
+                
+                <dependencies>
+                    <dependency>
+                        <groupId>org.robotframework</groupId>
+                        <artifactId>robotframework</artifactId>
+                        <version>${robotframework.version}</version>
+                    </dependency>
+                </dependencies>
+                
                 <executions>
                     <execution>
                         <id>html-libdoc-library</id>
@@ -166,20 +131,6 @@
                                 <outputDirectory>${project.build.directory}/robotframework/libdoc</outputDirectory>
                                 <outputFile>${keywords.class}.html</outputFile>
                                 <libraryOrResourceFile>${keywords.class}</libraryOrResourceFile>
-                            </libdoc>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>html-libdoc-resources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>libdoc</goal>
-                        </goals>
-                        <configuration>
-                            <libdoc>
-                                <outputDirectory>${project.build.directory}/robotframework/libdoc</outputDirectory>
-                                <outputFile>${keywords.class}Resources.html</outputFile>
-                                <libraryOrResourceFile>${project.basedir}/src/test/resources/CommonResources.tsv</libraryOrResourceFile>
                             </libdoc>
                         </configuration>
                     </execution>
@@ -197,56 +148,10 @@
                             </libdoc>
                         </configuration>
                     </execution>
-                    
-                    <execution>
-                        <id>html-testdoc</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>testdoc</goal>
-                        </goals>
-                        <configuration>
-                            <testdoc>
-                                <title>HTTP测试用例集</title>
-                                <name>HTTP_TEST</name>
-                                <doc>HTTP测试</doc>
-                                <outputDirectory>${project.build.directory}/robotframework/testdoc</outputDirectory>
-                                <outputFile>HTTP_TEST_CASES.html</outputFile>
-                                <dataSourceFile>${project.basedir}/src/test</dataSourceFile>
-                            </testdoc>
-                        </configuration>
-                    </execution>
-                    
-                    <execution>
-                        <id>run-tests</id>
-                        <phase>integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <testCasesDirectory>${project.basedir}/src/test</testCasesDirectory>
-                            <outputDirectory>${project.build.directory}/robotframework-reports</outputDirectory>
-                            <xunitFile>${project.build.directory}/robotframework-reports/xunitOutput.xml</xunitFile>
-                            <includes_cli>${robotframework.run.includes}</includes_cli>
-                            <excludes_cli>${robotframework.run.excludes}</excludes_cli>
-                            <randomize>${robotframeowrk.run.randomize}</randomize>
-                            <logLevel>DEBUG</logLevel>
-                            <variableFiles>
-                                <!-- variableFile>${project.basedir}/src/test/variables/${robotframework.run.variableFile}</variableFile-->
-                            </variableFiles>
-                        </configuration>
-                    </execution>
                 </executions>
-                 
-                <dependencies>
-                    <dependency>
-                        <groupId>org.robotframework</groupId>
-                        <artifactId>robotframework</artifactId>
-                        <version>${robotframework.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
-                        
         </plugins>
+        
         <pluginManagement>
         	<plugins>
         		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->

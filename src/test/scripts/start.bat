@@ -1,1 +1,0 @@
-java -Xbootclasspath/a:HttpLibrary.jar -jar robotframework-2.8.1.jar run --loglevel DEBUG %*
